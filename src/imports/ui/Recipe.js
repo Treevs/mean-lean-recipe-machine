@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 
 import { Recipes } from '../api/recipes.js';
 
@@ -9,7 +10,6 @@ export default class Recipe extends Component {
 
   constructor(props){
     super(props);
-
     this.state = {
       hideIngredients: true,
     };
@@ -26,6 +26,23 @@ export default class Recipe extends Component {
     this.setState({
       hideIngredients: !this.state.hideIngredients,
     });
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+
+    //Find the text field via the React ref
+
+    const text = ReactDOM.findDOMNode(this.refs.textInput).value.trim();
+
+    Recipes.insert({
+      text,
+      createdAt: new Date(),
+      owner: Meteor.userId(),
+      username: Meteor.user().username,
+    });
+
+    ReactDOM.findDOMNode(this.refs.textInput).value = '';
   }
 
   //TODO Remove flag, not actually remove
@@ -45,14 +62,28 @@ export default class Recipe extends Component {
   renderIngredients() {
     let ingredients = this.props.recipe.ingredients;
     console.log(!this.state.hideIngredients);
-    if(ingredients && !this.state.hideIngredients) {
+    if(!this.state.hideIngredients) {
       //Is it bad to hard code a React key like this?
-      var ingredientJSX = [<span key ="0">Ingredients:</span>]; 
-      ingredientJSX.push(ingredients.map((ingredient) => (
-        <Ingredient key={ingredient} ingredient={ingredient} />
-      )));
+      var ingredientJSX = [<li className="ingredients-label" key ="0">Ingredients:</li>];
+
+      console.log(this.props.currentUser);
+      if(this.props.currentUser){
+        ingredientJSX.push(<form className="new-recipe" onSubmit={this.handleSubmit.bind(this)} >
+          <input
+            type="text"
+            ref="textInput"
+            placeholder="Type to add new recipes"
+          />
+        </form>);
+      }
+      if(ingredients) {
+        ingredientJSX.push(ingredients.map((ingredient) => (
+          <Ingredient key={ingredient} ingredient={ingredient} />
+        )));
+      }
       return ingredientJSX;
     }
+    
   }
 
   render() {

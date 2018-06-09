@@ -47,7 +47,7 @@ class App extends Component {
       filteredRecipes = filteredRecipes.filter(recipe => !recipe.checked);
     }
     return filteredRecipes.map((recipe) => (
-      <Recipe key={recipe._id} recipe={recipe} />
+      <Recipe key={recipe._id} recipe={recipe} currentUser={Meteor.user()} />
     ));
   }
 
