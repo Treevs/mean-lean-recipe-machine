@@ -35,12 +35,13 @@ export default class Recipe extends Component {
 
     const text = ReactDOM.findDOMNode(this.refs.textInput).value.trim();
 
-    Recipes.insert({
-      text,
-      createdAt: new Date(),
-      owner: Meteor.userId(),
-      username: Meteor.user().username,
-    });
+    Recipes.update({ _id: id },{ $push: { ingredients: text }})
+    // Recipes.insert({
+    //   text,
+    //   createdAt: new Date(),
+    //   owner: Meteor.userId(),
+    //   username: Meteor.user().username,
+    // });
 
     ReactDOM.findDOMNode(this.refs.textInput).value = '';
   }
@@ -90,21 +91,24 @@ export default class Recipe extends Component {
     // Give recipes a different className when they are checked off,
     // so that we can style them nicely in CSS
     const recipeClassName = this.props.recipe.checked ? 'checked' : '';
-
+    let arrowClasses = "dropdown-arrow";
+    if(!this.state.hideIngredients) {
+      arrowClasses += " selected"
+    }
     return (
       <li className={recipeClassName}>
         <button className="delete" onClick={this.deleteThisRecipe.bind(this)}>
           &times;
         </button>
 
-        <input
+        {/* <input
           type="checkbox"
           checked={!!this.props.recipe.checked}
-          onClick={this.toggleHideIngredients.bind(this)}
-        />
+          // onClick={this.toggleHideIngredients.bind(this)}
+        /> */}
 
-
-        <span className="text">
+        <div className={arrowClasses}>&#x25B6;</div> 
+        <span className="text" onClick={this.toggleHideIngredients.bind(this)}>
           <strong>{this.props.recipe.username}</strong>: {this.props.recipe.text}
         </span>
         <div className="ingredients">

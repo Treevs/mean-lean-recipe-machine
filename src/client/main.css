@@ -123,6 +123,40 @@ header .hide-completed {
 .toggle-private {
   margin-left: 5px;
 }
+
+/* .dropdown-arrow {
+  transform: rotate(360deg);
+  transition: 300ms transform;
+  display: inline-block;
+}
+
+.dropdown-arrow.selected {
+  animation: spin 300ms;
+  transform: rotate(180deg);
+}
+
+@keyframes spin {
+  0% {
+      transform: rotate(0deg);
+  }
+  
+  100% {
+      transform: rotate(180deg);
+  }
+} */
+
+.dropdown-arrow {
+  display: inline-block;
+  transition-duration: .5s;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(.4,0,.6,0);
+}
+
+.dropdown-arrow.selected {
+  transform: rotate(450deg);
+  /* transform: rotate(90deg); If I'm not trying to get fancy*/
+}
+
  
 @media (max-width: 600px) {
   li {
