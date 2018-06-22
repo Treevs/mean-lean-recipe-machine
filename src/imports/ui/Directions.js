@@ -6,11 +6,11 @@ import { Recipes } from '../api/recipes';
 export default class Ingredient extends Component {
 
   //TODO Remove flag, not actually remove
-  deleteThisIngredient() {
-    console.log(this.props);
-    Recipes.update( {"_id": this.props.recipeId }, {"$pull": { "ingredients" : this.props.ingredient } } );
+  // deleteThisIngredient() {
+  //   console.log(this.props);
+  //   Recipes.update( {"_id": this.props.recipeId }, {"$pull": { "ingredients" : this.props.ingredient } } );
 
-  }
+  // }
 
   render() {
     // Give ingredients a different className when they are checked off,
@@ -18,11 +18,8 @@ export default class Ingredient extends Component {
 
     return (
       <li>
-        <button className="delete" onClick={this.deleteThisIngredient.bind(this)}>
-          &times;
-        </button>
         <span className="text">
-          {this.props.ingredient}
+          {this.props.directions}
         </span>
       </li>
     );

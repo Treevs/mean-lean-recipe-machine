@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import { Recipes } from '../api/recipes.js';
 
 import Ingredient from './Ingredient.js';
+import Directions from './Directions.js';
 
 // Recipe component - represents a single recipe item
 export default class Recipe extends Component {
@@ -11,7 +12,7 @@ export default class Recipe extends Component {
   constructor(props){
     super(props);
     this.state = {
-      hideIngredients: true,
+      hideIngredientsAndDirections: true,
     };
   }
 
@@ -24,24 +25,34 @@ export default class Recipe extends Component {
   
   toggleHideIngredients() {
     this.setState({
-      hideIngredients: !this.state.hideIngredients,
+      hideIngredientsAndDirections: !this.state.hideIngredientsAndDirections,
     });
   }
 
-  handleSubmit(event) {
+  handleIngredientSubmit(event) {
     event.preventDefault();
 
     //Find the text field via the React ref
 
     const text = ReactDOM.findDOMNode(this.refs.textInput).value.trim();
+    let currentRecipeId = this.props.recipe._id;
 
-    Recipes.update({ _id: id },{ $push: { ingredients: text }})
-    // Recipes.insert({
-    //   text,
-    //   createdAt: new Date(),
-    //   owner: Meteor.userId(),
-    //   username: Meteor.user().username,
-    // });
+
+    Recipes.update({"_id": currentRecipeId},{$push: {"ingredients": text}});
+
+    ReactDOM.findDOMNode(this.refs.textInput).value = '';
+  }
+  
+  handleDirectionsSubmit(event) {
+    event.preventDefault();
+
+    //Find the text field via the React ref
+
+    const text = ReactDOM.findDOMNode(this.refs.textInput).value.trim();
+    let currentRecipeId = this.props.recipe._id;
+
+
+    Recipes.update({"_id": currentRecipeId},{$set: {"directions": text}});
 
     ReactDOM.findDOMNode(this.refs.textInput).value = '';
   }
@@ -50,41 +61,57 @@ export default class Recipe extends Component {
   deleteThisRecipe() {
     Recipes.remove(this.props.recipe._id);
   }
-  // renderRecipes() {
-  //   let filteredRecipes = this.props.recipes;
-  //   if(this.state.hideCompleted) {
-  //     filteredRecipes = filteredRecipes.filter(recipe => !recipe.checked);
-  //   }
-  //   return filteredRecipes.map((recipe) => (
-  //     <Recipe key={recipe._id} recipe={recipe} />
-  //   ));
-  // }
 
   renderIngredients() {
     let ingredients = this.props.recipe.ingredients;
-    console.log(!this.state.hideIngredients);
-    if(!this.state.hideIngredients) {
-      //Is it bad to hard code a React key like this?
-      var ingredientJSX = [<li className="ingredients-label" key ="0">Ingredients:</li>];
+    if(!this.state.hideIngredientsAndDirections) {
+      //Is it bad to hard code a React key with a string like this?
+      var ingredientJSX = [<li className="ingredients-label" key ="ingredients"><strong>Ingredients:</strong></li>];
 
-      console.log(this.props.currentUser);
       if(this.props.currentUser){
-        ingredientJSX.push(<form className="new-recipe" onSubmit={this.handleSubmit.bind(this)} >
+        //It looks funky if the "ingredients" text is before the form
+        ingredientJSX.unshift(<form className="new-recipe" onSubmit={this.handleIngredientSubmit.bind(this)} key="ingredient-form" >
           <input
             type="text"
             ref="textInput"
-            placeholder="Type to add new recipes"
+            placeholder="Type to add new ingredients"
           />
         </form>);
       }
-      if(ingredients) {
+      if(ingredients && ingredients.length > 0) {
         ingredientJSX.push(ingredients.map((ingredient) => (
-          <Ingredient key={ingredient} ingredient={ingredient} />
+          <Ingredient key={ingredient} ingredient={ingredient} recipeId={this.props.recipe._id}/>
         )));
+      } else {
+        ingredientJSX.push(<li key="no-ingredients">There are no ingredients listed yet!</li>);
       }
       return ingredientJSX;
     }
     
+  }
+
+  renderDirections() {
+    let directions = this.props.recipe.directions;
+    if(!this.state.hideIngredientsAndDirections) {
+      var directionsJSX = [<li className="directions-label" key ="directions2"><strong>Directions:</strong></li>];
+      if(this.props.currentUser){
+        //It looks funky if the "directions" text is before the form
+        directionsJSX.unshift(<form className="new-recipe" onSubmit={this.handleDirectionsSubmit.bind(this)} key="directions-form" >
+          <input
+            type="text"
+            ref="textInput"
+            placeholder="Type to add new directions"
+          />
+        </form>);
+      }
+      if(directions && directions.length > 0) {
+        directionsJSX.push(<Directions key={this.props.recipe._id} directions={directions} recipeId={this.props.recipe._id}/>);
+      } else {
+        directionsJSX.push(<li key="no-directions">There are no directions listed yet!</li>);
+      }
+      return directionsJSX; 
+    }
+
   }
 
   render() {
@@ -92,7 +119,7 @@ export default class Recipe extends Component {
     // so that we can style them nicely in CSS
     const recipeClassName = this.props.recipe.checked ? 'checked' : '';
     let arrowClasses = "dropdown-arrow";
-    if(!this.state.hideIngredients) {
+    if(!this.state.hideIngredientsAndDirections) {
       arrowClasses += " selected"
     }
     return (
@@ -114,6 +141,11 @@ export default class Recipe extends Component {
         <div className="ingredients">
           <ul>
             {this.renderIngredients()}
+          </ul>
+        </div>
+        <div className="directions">
+          <ul>
+            {this.renderDirections()}
           </ul>
         </div>
       </li>

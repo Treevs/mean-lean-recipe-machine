@@ -30,6 +30,7 @@ class App extends Component {
       createdAt: new Date(),
       owner: Meteor.userId(),
       username: Meteor.user().username,
+      ingredients: []
     });
 
     ReactDOM.findDOMNode(this.refs.textInput).value = '';
